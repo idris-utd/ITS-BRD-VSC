@@ -1,3 +1,4 @@
+; Aufgabe 1 Lösung
     EXTERN initITSboard
     EXPORT main
 
