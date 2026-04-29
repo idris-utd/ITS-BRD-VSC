@@ -1,4 +1,4 @@
-; Aufgabe 1 Lösung - main.s
+; Aufgabe 1 Lösung
     EXTERN initITSboard
     EXPORT main
 
