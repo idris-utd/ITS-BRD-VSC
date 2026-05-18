@@ -32,7 +32,7 @@ MeinTextFeld       DCB "ABab0123",0
 ; ----- Start des Hauptprogramms -----
                 EXPORT main
                 EXTERN initITSboard
-
+ 
 main            PROC
 
                 ; Board initialisieren
