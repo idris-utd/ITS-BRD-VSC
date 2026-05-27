@@ -17,7 +17,7 @@ solution:
       target-set:
         - set:
           images:
-            - project-context: A3ASM.Debug
+            - project-context: PrimzahlSieb.Debug
           debugger:
             name: ST-Link@pyOCD
             clock: 4000000
@@ -35,4 +35,4 @@ solution:
 
   # List related projects.
   projects:
-    - project: A3ASM.cproject.yml
+    - project: PrimzahlSieb.cproject.yml
