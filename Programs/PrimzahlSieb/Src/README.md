@@ -1,46 +1,134 @@
-# PrimzahlSieb
+# PrimzahlSieb - Woche 5
 
-## Aufgabe
+## Ziel
 
-In dieser Aufgabe soll ein Assemblerprogramm vorbereitet werden, das Primzahlen von 2 bis 1000 mit dem Sieb des Eratosthenes bestimmt.
+In dieser Aufgabe soll das Sieb des Eratosthenes in ARM-Assembler umgesetzt werden.
 
-## Idee des Programms
+Das Programm soll Primzahlen von 2 bis 1000 finden.
+Dafuer wird ein Feld benutzt, in dem gespeichert wird,
+ob eine Zahl noch eine moegliche Primzahl ist oder nicht.
 
-Zuerst werden alle Zahlen als mögliche Primzahlen markiert. Danach beginnt das Programm bei der Zahl 2 und streicht alle Vielfachen dieser Zahl aus dem Feld. Anschließend wird die nächste noch nicht gestrichene Zahl gesucht und ihre Vielfachen werden ebenfalls gestrichen.
+1 bedeutet:
+- moegliche Primzahl
 
-Dieser Vorgang wird solange wiederholt, bis alle Primzahlen gefunden wurden.
+0 bedeutet:
+- keine Primzahl
 
-## Verwendete Felder
 
-Für das Programm wird ein Feld verwendet, das speichert, ob eine Zahl eine Primzahl ist oder nicht.
+## Idee vom Algorithmus
 
-Der Index des Feldes entspricht dabei der jeweiligen Zahl.
+Zuerst werden alle Werte im Feld auf 1 gesetzt.
+
+Danach werden 0 und 1 auf 0 gesetzt,
+weil sie keine Primzahlen sind.
+
+Anschliessend startet die aeussere Schleife mit p = 2.
+
+Wenn eine Zahl noch den Wert 1 hat,
+gilt sie noch als moegliche Primzahl.
+Dann startet die innere Schleife.
+
+Die innere Schleife streicht alle Vielfachen von p,
+indem sie die Werte im Feld auf 0 setzt.
+
+Am Ende bleiben nur die Primzahlen mit dem Wert 1 im Feld stehen.
+
+
+## Verwendete Kontrollstrukturen
+
+### While-Schleifen
+
+Es werden mehrere While-Schleifen benutzt:
+
+- Initialisierung des Feldes
+- aeussere Schleife fuer p
+- innere Schleife fuer die Vielfachen
+
+Die Schleifen arbeiten mit:
+- cmp
+- bedingten Sprungbefehlen
+- Labels
+
+
+## Wichtige Befehle
+
+### cmp
+
+Vergleicht zwei Werte.
 
 Beispiel:
 
-- Feld[2] -> Information für die Zahl 2
-- Feld[7] -> Information für die Zahl 7
+cmp r2, #1000
 
-Die Elemente des Feldes sollen als Byte gespeichert werden:
+Hier wird geprueft,
+ob p*p groesser als 1000 ist.
 
-- 1 = mögliche Primzahl
-- 0 = keine Primzahl
 
-## Aufbau des Programms
+### bgt
 
-Das Programm besteht aus mehreren Schritten:
+Branch if greater.
 
-1. Feld initialisieren
-2. Zahlen als mögliche Primzahlen markieren
-3. Vielfache der aktuellen Primzahl streichen
-4. Nächste Primzahl suchen
-5. Ergebnisse abspeichern
+Springt,
+wenn der linke Wert groesser ist.
 
-## Verwendete Konzepte
 
-- Schleifen
-- Vergleiche
-- Speicherzugriffe
-- Felder/Arrays
-- Multiplikation
-- Bedingungen
+### bne
+
+Branch if not equal.
+
+Springt,
+wenn zwei Werte nicht gleich sind.
+
+
+### ldrb
+
+Laedt 1 Byte aus dem Speicher.
+
+Wird benutzt,
+um einen Wert aus dem Sieb-Feld zu lesen.
+
+
+### strb
+
+Speichert 1 Byte im Speicher.
+
+Wird benutzt,
+um Vielfache auf 0 zu setzen.
+
+
+## Registerbelegung
+
+r0 = Adresse vom Sieb
+
+r1 = p (aktuelle Zahl der aeusseren Schleife)
+
+r2 = p*p
+
+r3 = k (aktuelles Vielfaches)
+
+r4 = Sieb[p]
+
+r5 = Wert 0 zum Streichen
+
+
+## Warum startet die innere Schleife bei p*p?
+
+Kleinere Vielfache wurden bereits
+von kleineren Primzahlen gestrichen.
+
+Beispiel:
+
+Bei p = 5 wurden:
+10, 15 und 20 schon vorher gestrichen.
+
+Deshalb beginnt die Schleife erst bei:
+25.
+
+
+## Zusammenfassung
+
+Die aeussere Schleife waehlt die aktuelle Zahl p.
+
+Die innere Schleife streicht alle Vielfachen von p.
+
+Durch das Streichen bleiben am Ende nur die Primzahlen im Feld erhalten.
