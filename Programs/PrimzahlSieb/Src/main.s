@@ -65,7 +65,7 @@
 ; Feld fuer Zahlen 0 bis 1000
 ; 1 = moegliche Primzahl
 ; 0 = keine Primzahl
-Sieb            SPACE 1001
+Sieb            fill  1001, 0
 
                 EXPORT Sieb
 
@@ -93,15 +93,15 @@ main            PROC
                mov  r2, #1           ; Wert 1 setzen
 
 ; Alle Felder zuerst auf 1 setzen
-beginWhile_init
+while_1
                cmp  r1,#1000
-               bgt  endWhile_init
+               bgt  endwhile_1
 
                strb r2, [r0, r1]
                add  r1,r1, #1
-               b    beginWhile_init
+               b    while_1
 
-endWhile_init
+endwhile_1
 
 ; 0 und 1 auf 0 setzen weil keine Primzahl
                mov  r2,#0
@@ -118,10 +118,10 @@ endWhile_init
 ; r5 = 0 (zum Streichen)
 ;---------------------------------------------------------------
                mov  r1, #2
-beginWhile_outer
+while_2
                mul  r2,r1,r1
                cmp  r2,#1000
-               bgt  endWhile_outer
+               bgt  endwhile_2
 
                ldrb r4,[r0,r1]
                cmp  r4, #1
@@ -130,26 +130,23 @@ beginWhile_outer
                mov  r3, r2                ; k = p*p
                mov  r5, #0                ; Wert 0 zum Streichen
 
-beginWhile_inner
+while_3
                cmp  r3,#1000
-               bgt  endWhile_inner
+               bgt  endwhile_3
 
     
                strb r5,[r0, r3]           ; Sieb[k] = 0 
                add  r3, r3, r1            ; k = k + p
-               b    beginWhile_inner    
+               b    while_3    
 
-endWhile_inner    
+endwhile_3  
 
 endIf_1 
                add  r1,r1,#1
-               b    beginWhile_outer
+               b    while_2
 
-endWhile_outer
+endwhile_2
 
 forever        b    forever               ; Endlosschleife
                ENDP
                END
-
- 
-
