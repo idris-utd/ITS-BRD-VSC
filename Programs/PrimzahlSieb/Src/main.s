@@ -1,10 +1,10 @@
-; *******************************************
-; * PrimzahlSieb - Woche 6
-; *******************************************
+; **********************************************************
+; *  Woche 6: Sieb auslesen und Primzahlen in Prim speichern
+; **********************************************************
 
 
 
-; WOCHE 5
+; WOCHE 5: Sieb berechnen
 ;**********************************************************
 ;* Datenbereich
 ;**********************************************************
@@ -48,7 +48,7 @@ while_1
                cmp  r1,#1000
                bgt  endwhile_1
 
-               strb r2, [r0, r1]     ; Sieb[0] = 1
+               strb r2, [r0, r1]     ; Sieb[i] = 1
                add  r1,r1, #1
                b    while_1
 
@@ -62,7 +62,7 @@ endwhile_1
 ;---------------------------------------------------------------
 ; Sieb des Eratosthenes
 ; r0 = Adresse Sieb
-; r1 = p #2 = am anfang (äußere Schleife) 
+; r1 = p startet bei 2
 ; r2 = p*p
 ; r3 = k (innere Schleife)
 ; r4 = Sieb[p]
@@ -86,7 +86,7 @@ while_3
                bgt  endwhile_3
 
     
-               strb r5,[r0, r3]           ; Sieb[4] = 0 
+               strb r5,[r0, r3]           ; Sieb[k] = 0 
                add  r3, r3, r1            ; k = k + p
                b    while_3    
 
@@ -119,8 +119,8 @@ while_4
                cmp r2,#1
                bne endIf_2
 
-               strh r1,[r6,r7, lsl #1]        ; Prim[j] = i    (r6 + r7*2)
-               add r7, r7,#2                  ; j = j + 1
+               strh r1,[r6,r7,lsl #1]        ; Prim[j] = i    (r6 + r7*2)
+               add r7, r7,#1                  ; j = j + 1
 
             
 endIf_2 
