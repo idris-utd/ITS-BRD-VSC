@@ -1,134 +1,29 @@
-# PrimzahlSieb - Woche 5
+Woche 6 – Primzahlen abspeichern
 
-## Ziel
+In Woche 5 wurde mit dem Sieb des Eratosthenes bestimmt, welche Zahlen zwischen 0 und 1000 Primzahlen sind. Im Feld Sieb steht für jede Zahl entweder eine 1 (Primzahl) oder eine 0 (keine Primzahl).
 
-In dieser Aufgabe soll das Sieb des Eratosthenes in ARM-Assembler umgesetzt werden.
+In Woche 6 werden die gefundenen Primzahlen in ein neues Feld Prim gespeichert.
 
-Das Programm soll Primzahlen von 2 bis 1000 finden.
-Dafuer wird ein Feld benutzt, in dem gespeichert wird,
-ob eine Zahl noch eine moegliche Primzahl ist oder nicht.
-
-1 bedeutet:
-- moegliche Primzahl
-
-0 bedeutet:
-- keine Primzahl
-
-
-## Idee vom Algorithmus
-
-Zuerst werden alle Werte im Feld auf 1 gesetzt.
-
-Danach werden 0 und 1 auf 0 gesetzt,
-weil sie keine Primzahlen sind.
-
-Anschliessend startet die aeussere Schleife mit p = 2.
-
-Wenn eine Zahl noch den Wert 1 hat,
-gilt sie noch als moegliche Primzahl.
-Dann startet die innere Schleife.
-
-Die innere Schleife streicht alle Vielfachen von p,
-indem sie die Werte im Feld auf 0 setzt.
-
-Am Ende bleiben nur die Primzahlen mit dem Wert 1 im Feld stehen.
-
-
-## Verwendete Kontrollstrukturen
-
-### While-Schleifen
-
-Es werden mehrere While-Schleifen benutzt:
-
-- Initialisierung des Feldes
-- aeussere Schleife fuer p
-- innere Schleife fuer die Vielfachen
-
-Die Schleifen arbeiten mit:
-- cmp
-- bedingten Sprungbefehlen
-- Labels
-
-
-## Wichtige Befehle
-
-### cmp
-
-Vergleicht zwei Werte.
+Dazu wird das Feld Sieb von Index 2 bis 1000 durchlaufen. Für jeden Eintrag wird geprüft, ob der Wert 1 ist. Ist dies der Fall, wird der aktuelle Index in das Feld Prim geschrieben. Der Index entspricht dabei der gefundenen Primzahl.
 
 Beispiel:
 
-cmp r2, #1000
+Sieb[2] = 1 → Prim[0] = 2
+Sieb[3] = 1 → Prim[1] = 3
+Sieb[4] = 0 → wird übersprungen
+Sieb[5] = 1 → Prim[2] = 5
 
-Hier wird geprueft,
-ob p*p groesser als 1000 ist.
+Die Primzahlen werden als uint16_t gespeichert. Deshalb wird für jeden Eintrag ein Speicherplatz von 2 Byte verwendet und der Befehl STRH zum Speichern eingesetzt.
 
+Nach dem Durchlaufen des gesamten Siebs enthält das Feld Prim alle Primzahlen von 2 bis 1000 in aufsteigender Reihenfolge.
 
-### bgt
+Die ersten gespeicherten Primzahlen sind:
+2, 3, 5, 7, 11, 13, 17, 19, ...
 
-Branch if greater.
+Die letzte gespeicherte Primzahl ist: 997
 
-Springt,
-wenn der linke Wert groesser ist.
+Im Memory Browser können die gespeicherten Werte überprüft werden. Dort werden sie in 
+Hexadezimaldarstellung angezeigt: 0002 0003 0005 0007 000B 000D 0011 0013 ...
 
+Dies entspricht den Primzahlen: 2 3 5 7 11 13 17 19 ...
 
-### bne
-
-Branch if not equal.
-
-Springt,
-wenn zwei Werte nicht gleich sind.
-
-
-### ldrb
-
-Laedt 1 Byte aus dem Speicher.
-
-Wird benutzt,
-um einen Wert aus dem Sieb-Feld zu lesen.
-
-
-### strb
-
-Speichert 1 Byte im Speicher.
-
-Wird benutzt,
-um Vielfache auf 0 zu setzen.
-
-
-## Registerbelegung
-
-r0 = Adresse vom Sieb
-
-r1 = p (aktuelle Zahl der aeusseren Schleife)
-
-r2 = p*p
-
-r3 = k (aktuelles Vielfaches)
-
-r4 = Sieb[p]
-
-r5 = Wert 0 zum Streichen
-
-
-## Warum startet die innere Schleife bei p*p?
-
-Kleinere Vielfache wurden bereits
-von kleineren Primzahlen gestrichen.
-
-Beispiel:
-
-Bei p = 5 wurden:
-10, 15 und 20 schon vorher gestrichen.
-
-Deshalb beginnt die Schleife erst bei:
-25.
-
-
-## Zusammenfassung
-
-Die aeussere Schleife waehlt die aktuelle Zahl p.
-
-Die innere Schleife streicht alle Vielfachen von p.
-
-Durch das Streichen bleiben am Ende nur die Primzahlen im Feld erhalten.

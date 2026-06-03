@@ -1,61 +1,10 @@
 ; *******************************************
-; * PrimzahlSieb - Woche 5
+; * PrimzahlSieb - Woche 6
 ; *******************************************
 
-; Ziel
-; Primzahlen von 2 bis 1000 mit dem Sieb des Eratosthenes finden
 
 
-;Speicher/Felder:
-;Ein Feld speichert fuer jede Zahl
-;ob sie Primzahl ist oder nicht
-;1 = moegliche Primzahl
-;0 = keine Primzahl
-
-; Ablauf:
-
-;1. Feld initialisieren
-;Alle Werte zuerst auf 1 setzen
-
-;2. Mit Zahl 2 beginnen
-
-;3. Alle Vielfachen der aktuellen Zahl streichen 
-
-;4. Naechste nicht gestrichene Zahl suchen
-
-;5. Schritte wiederholen bis Grenze erreicht
-
-;6. Gefundene Primzahlen abspeichern
-
-
-; Wichtige Operationen:
-; - Schleifen
-; - Vergleiche
-; - Speicherzugriffe
-; - Multiplikation
-
-; Pseudocode:
-
-; i = 0
-; solange i <= 1000:
-;    Feld[i] = 1
-;    i = i + 1
-
-; Feld[0] = 0
-; Feld[1] = 0
-
-; zahl = 2
-; solange zahl * zahl <= 1000:
-;    wenn Feld[zahl] == 1:
-;       vielfaches = zahl * zahl
-;       solange vielfaches <= 1000:
-;           Feld[vielfaches] = 0
-;           vielfaches = vielfaches + zahl
-;    zahl = zahl + 1
-
-; Danach stehen alle Primzahlen noch mit 1 im Feld 
-
-
+; WOCHE 5
 ;**********************************************************
 ;* Datenbereich
 ;**********************************************************
@@ -66,8 +15,10 @@
 ; 1 = moegliche Primzahl
 ; 0 = keine Primzahl
 Sieb            fill  1001, 0
+Prim            fill  336, 0
 
                 EXPORT Sieb
+                EXPORT Prim
 
 ;**************************************************************
 ;* Beginn des Programms
@@ -97,7 +48,7 @@ while_1
                cmp  r1,#1000
                bgt  endwhile_1
 
-               strb r2, [r0, r1]
+               strb r2, [r0, r1]     ; Sieb[0] = 1
                add  r1,r1, #1
                b    while_1
 
@@ -111,7 +62,7 @@ endwhile_1
 ;---------------------------------------------------------------
 ; Sieb des Eratosthenes
 ; r0 = Adresse Sieb
-; r1 = p (äußere Schleife)
+; r1 = p #2 = am anfang (äußere Schleife) 
 ; r2 = p*p
 ; r3 = k (innere Schleife)
 ; r4 = Sieb[p]
@@ -135,7 +86,7 @@ while_3
                bgt  endwhile_3
 
     
-               strb r5,[r0, r3]           ; Sieb[k] = 0 
+               strb r5,[r0, r3]           ; Sieb[4] = 0 
                add  r3, r3, r1            ; k = k + p
                b    while_3    
 
@@ -145,7 +96,39 @@ endIf_1
                add  r1,r1,#1
                b    while_2
 
+
 endwhile_2
+
+;   ---- WOCHE 6 -----   
+; r0 = Adresse Sieb
+; r1 = i (Index Sieb)
+; r6 = Adresse Prim
+; r7 = j (Index Prim) 
+
+               ldr r0, =Sieb
+               mov r1, #2
+               ldr r6, =Prim
+               mov r7, #0
+
+while_4
+               cmp r1,#1000
+               bgt endwhile_4
+               
+
+               ldrb r2,[r0,r1]
+               cmp r2,#1
+               bne endIf_2
+
+               strh r1,[r6,r7, lsl #1]        ; Prim[j] = i    (r6 + r7*2)
+               add r7, r7,#2                  ; j = j + 1
+
+            
+endIf_2 
+               add  r1,r1,#1
+               b    while_4
+
+      
+endwhile_4
 
 forever        b    forever               ; Endlosschleife
                ENDP
