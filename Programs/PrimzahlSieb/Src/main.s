@@ -111,14 +111,15 @@ endwhile_2
                mov r7, #0
 
 while_4
+ 
                cmp r1,#1000
                bgt endwhile_4
-               
-
+do_4             
+if_2
                ldrb r2,[r0,r1]
                cmp r2,#1
                bne endIf_2
-
+then_2
                strh r1,[r6,r7,lsl #1]        ; Prim[j] = i    (r6 + r7*2)
                add r7, r7,#1                  ; j = j + 1
 
