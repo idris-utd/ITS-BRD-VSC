@@ -2,9 +2,9 @@
 
 ## Einleitung
 
-Im Rahmen dieser Aufgabe wurde eine Stoppuhr für das ITS-Board in ARM-Assembler entwickelt. Ziel war es, die in den vorherigen Übungen behandelten Themen wie Displayausgabe, Tasterabfrage, LED-Ansteuerung und Timerprogrammierung in einem gemeinsamen Projekt anzuwenden.
+In dieser Aufgabe wurde eine Stoppuhr für das ITS-Board in ARM-Assembler entwickelt. Ziel war es, die in den vorherigen Übungen behandelten Themen wie Tasterabfrage, Displayausgabe, LED-Ansteuerung und Timerprogrammierung praktisch anzuwenden und in einem gemeinsamen Projekt umzusetzen.
 
-Die Stoppuhr wird über die Taster des ITS-Boards gesteuert. Die aktuelle Zeit wird auf dem TFT-Display angezeigt. Zusätzlich werden LEDs verwendet, um den aktuellen Zustand der Stoppuhr sichtbar zu machen.
+Die Stoppuhr kann über die Taster des ITS-Boards gesteuert werden. Die gemessene Zeit wird auf dem TFT-Display angezeigt. Zusätzlich zeigen die LEDs D8 und D9 den aktuellen Zustand der Stoppuhr an.
 
 ---
 
@@ -14,7 +14,9 @@ Die Stoppuhr wird über die Taster des ITS-Boards gesteuert. Die aktuelle Zeit w
 
 Das TFT-Display dient zur Ausgabe der gemessenen Zeit. Die Zeit wird im Format
 
+```text
 MM:SS.HH
+```
 
 angezeigt.
 
@@ -26,7 +28,9 @@ Dabei stehen:
 
 Beispiel:
 
+```text
 03:18.90
+```
 
 ### Taster
 
@@ -60,69 +64,49 @@ Für die Zeitmessung wird der Hardware-Timer TIM2 verwendet. Der Prescaler wird 
 
 ### Woche 7
 
-Zu Beginn wurde das bereitgestellte Beispielprogramm analysiert und auf das ITS-Board geladen. Anschließend wurden die wichtigsten Hardware-Komponenten einzeln getestet.
+Zu Beginn wurde das bereitgestellte Beispielprogramm untersucht und auf das ITS-Board geladen. Anschließend wurden die einzelnen Hardware-Komponenten getestet.
 
-Dabei wurden folgende Funktionen untersucht:
-
-* Ausgabe von Texten auf dem TFT-Display
-* Einlesen von Tasterzuständen
-* Ansteuerung der LEDs
-* Initialisierung des Timers
-
-Dadurch konnte der grundsätzliche Aufbau des Programms verstanden werden.
+Dabei wurden erste Versuche mit der Displayausgabe, der Tasterabfrage, den LEDs und dem Timer durchgeführt. Dadurch konnte der grundsätzliche Aufbau des Programms verstanden werden.
 
 ### Woche 8
 
-Im zweiten Schritt wurde die Zustandsmaschine der Stoppuhr entwickelt.
+In der zweiten Woche wurde die Zustandsmaschine der Stoppuhr umgesetzt.
 
-Dafür wurden die drei Zustände
-
-* INIT
-* RUNNING
-* HOLD
-
-festgelegt und über die Taster steuerbar gemacht.
-
-Zusätzlich wurde die Zustandsanzeige über die LEDs D8 und D9 umgesetzt.
+Hierfür wurden die Zustände INIT, RUNNING und HOLD festgelegt. Über die Taster S5 bis S7 kann zwischen diesen Zuständen gewechselt werden. Zusätzlich wurde die Zustandsanzeige über die LEDs D8 und D9 realisiert.
 
 ### Woche 9
 
-Im letzten Teil wurde die eigentliche Zeitmessung implementiert.
+Im letzten Teil der Aufgabe wurde die eigentliche Zeitmessung implementiert.
 
-Der aktuelle Timerwert wird eingelesen und anschließend in Minuten, Sekunden und Hundertstel umgerechnet. Die berechneten Werte werden als Zeichenkette aufbereitet und auf dem TFT-Display ausgegeben.
+Dazu wird der aktuelle Timerwert eingelesen und die seit dem letzten Schleifendurchlauf vergangene Zeit berechnet. Diese Zeit wird zur bisherigen Stoppuhrzeit addiert und anschließend in Minuten, Sekunden und Hundertstel umgerechnet.
 
-Außerdem wird die Zeit nur im Zustand RUNNING aktualisiert. Im Zustand HOLD bleibt die zuletzt gemessene Zeit erhalten.
+Die berechneten Werte werden als Zeichenkette aufbereitet und auf dem TFT-Display ausgegeben. Die Anzeige wird nur im Zustand RUNNING aktualisiert. Im Zustand HOLD bleibt die zuletzt gemessene Zeit erhalten.
 
 ---
 
 ## Programmablauf
 
-Die Hauptschleife des Programms besteht aus vier Schritten:
+Nach der Initialisierung von Board, Display und Timer läuft das Programm in einer Endlosschleife (Superloop).
 
-1. Taster einlesen
-2. Zustand bestimmen
-3. LEDs aktualisieren
-4. Zeit aktualisieren
-
-Diese Schritte werden fortlaufend wiederholt, solange das Programm läuft.
+Innerhalb dieser Schleife werden nacheinander die Taster eingelesen, der aktuelle Zustand bestimmt, die LEDs aktualisiert und anschließend die Zeitmessung durchgeführt. Dadurch reagiert die Stoppuhr kontinuierlich auf Benutzereingaben und aktualisiert die Anzeige laufend.
 
 ---
 
 ## Zustandsmaschine
 
-Die Stoppuhr besitzt drei Zustände.
+Die Stoppuhr besitzt drei Zustände:
 
 ### INIT
 
-Im Zustand INIT wird die Stoppuhr zurückgesetzt. Der Timer wird neu gestartet und die Anzeige auf 00:00.00 gesetzt.
+Im Zustand INIT wird die Stoppuhr zurückgesetzt. Der Timer wird neu gestartet und die Anzeige auf `00:00.00` gesetzt.
 
 ### RUNNING
 
-Im Zustand RUNNING läuft die Zeit. Der aktuelle Timerwert wird eingelesen, umgerechnet und auf dem Display dargestellt.
+Im Zustand RUNNING läuft die Zeit. Die seit dem letzten Schleifendurchlauf vergangene Zeit wird zur bisherigen Stoppuhrzeit addiert und anschließend auf dem Display dargestellt.
 
 ### HOLD
 
-Im Zustand HOLD wird die aktuelle Zeit angehalten. Die Anzeige bleibt unverändert, bis die Stoppuhr wieder gestartet oder zurückgesetzt wird.
+Im Zustand HOLD bleibt die aktuelle Zeit stehen. Die Anzeige wird nicht weiter aktualisiert, bis die Stoppuhr erneut gestartet oder zurückgesetzt wird.
 
 Der aktuelle Zustand wird in der Variablen `STATE` gespeichert.
 
@@ -132,7 +116,7 @@ Der aktuelle Zustand wird in der Variablen `STATE` gespeichert.
 
 ### readButtons
 
-Liest den aktuellen Zustand der Taster ein.
+Liest die aktuellen Tasterzustände ein.
 
 **Eingabe:**
 
@@ -160,11 +144,11 @@ Liest den aktuellen Wert des Hardware-Timers TIM2.
 
 ### convertTime
 
-Wandelt den Timerwert in Minuten, Sekunden und Hundertstel um.
+Wandelt die gemessene Zeit in Minuten, Sekunden und Hundertstel um.
 
 **Eingabe:**
 
-* `R0` = aktueller Timerwert
+* `R0` = Zeitwert in Timer-Ticks
 
 **Ausgabe:**
 
@@ -184,8 +168,8 @@ Wandelt eine Zahl zwischen 0 und 99 in zwei ASCII-Zeichen um.
 
 **Ausgabe:**
 
-* `R2` = ASCII-Zeichen der Zehnerstelle
-* `R3` = ASCII-Zeichen der Einerstelle
+* `R2` = ASCII-Zehnerstelle
+* `R3` = ASCII-Einerstelle
 
 ---
 
@@ -208,21 +192,23 @@ Erstellt aus Minuten, Sekunden und Hundertstel einen Zeitstring und gibt diesen 
 
 ### updateClk
 
-Aktualisiert die Zeitanzeige.
+Berechnet die seit dem letzten Schleifendurchlauf vergangene Zeit und aktualisiert die Stoppuhr im Zustand RUNNING.
 
 **Eingabe:**
 
 * `STATE`
+* aktueller Timerwert
 
 **Ausgabe:**
 
-* Aktualisierte Anzeige im Zustand RUNNING
+* Aktualisierung von `STOPWATCH_TICKS`
+* Aktualisierung der Zeitanzeige
 
 ---
 
 ### stateMachine
 
-Bestimmt anhand der gedrückten Taster den aktuellen Zustand.
+Bestimmt anhand der gedrückten Taster den aktuellen Zustand der Stoppuhr.
 
 **Eingabe:**
 
@@ -247,7 +233,7 @@ Setzt die Stoppuhr zurück.
 * `STATE = INIT`
 * Timer wird zurückgesetzt
 * Zeitwerte werden auf 0 gesetzt
-* Anzeige zeigt 00:00.00
+* Anzeige wird auf `00:00.00` zurückgesetzt
 
 ---
 
@@ -295,17 +281,10 @@ Zeigt den aktuellen Zustand über die LEDs D8 und D9 an.
 
 ## Ergebnis
 
-Die Stoppuhr konnte erfolgreich auf dem ITS-Board umgesetzt werden.
+Die Stoppuhr konnte erfolgreich auf dem ITS-Board umgesetzt und getestet werden.
 
-Folgende Funktionen wurden realisiert:
+Die Zustände INIT, RUNNING und HOLD werden über die Taster gesteuert und zusätzlich durch die LEDs angezeigt. Die Zeit wird mit Hilfe des Hardware-Timers TIM2 gemessen und im Format `MM:SS.HH` auf dem TFT-Display dargestellt.
 
-* Initialisierung von Board, Display und Timer
-* Einlesen der Taster
-* Zustandsmaschine mit INIT, RUNNING und HOLD
-* Zustandsanzeige über LEDs
-* Zeitmessung mit TIM2
-* Umrechnung in Minuten, Sekunden und Hundertstel
-* Anzeige der Zeit auf dem TFT-Display
+Damit sind alle wesentlichen Funktionen der Stoppuhr erfolgreich implementiert worden. Die Stoppuhr kann gestartet, angehalten und zurückgesetzt werden und zeigt die gemessene Zeit zuverlässig auf dem Display an.
 
-Die Stoppuhr kann gestartet, angehalten und zurückgesetzt werden. Die aktuelle Zeit wird fortlaufend auf dem Display angezeigt, während die LEDs jederzeit den aktuellen Zustand der Stoppuhr signalisieren.
-
+Damit sind alle wesentlichen Funktionen der Stoppuhr erfolgreich implementiert und getestet worden.

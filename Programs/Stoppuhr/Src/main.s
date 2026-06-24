@@ -47,7 +47,9 @@ STATE                   DCB     0
 HUNDREDTHS              DCD     0
 SECONDS                 DCD     0
 MINUTES                 DCD     0
-;********************************************
+LAST_TIMESTAMP          DCD     0    ; letzter gelesener Zeitstempel
+STOPWATCH_TICKS         DCD    0     ; gesamte gestoppte Zeit in Tics
+
 ; Code section, aligned on 8-byte boundery
 ;********************************************
 	AREA |.text|, CODE, READONLY, ALIGN = 3
@@ -185,9 +187,17 @@ displayTime PROC
                ENDP
 
 updateClk PROC
-               PUSH    {LR}
+               PUSH    {LR} 
 
-        
+               LDR     R0,=TIMER
+               LDR     R0,[R0]                        ; Aktuellen Timerwert lesen
+              
+               LDR     R1,=LAST_TIMESTAMP             ; Differenz zum letzten Zeitstempel brechnen
+               LDR     R2, [R1]
+               SUB     R3,R0,R2
+               
+               STR     R0, [R1]                       ; Aktuellen Zeitstempel als neuen Zeitstempel speichern
+  
                LDR     R1,=STATE                      ; STATE lesen
                LDRB    R0,[R1]
 
@@ -198,8 +208,12 @@ updateClk PROC
                POP     {PC}
 
 updateRunning
-               BL      readTimer
-               BL      convertTime
+               LDR     R1,=STOPWATCH_TICKS            ; STOPWATCH_TICKS += Delta
+               LDR     R0,[R1]
+               ADD     R0,R0,R3
+               STR     R0,[R1]
+
+               BL      convertTime                    ; R0 = gesamte gestoppte Zeit
                BL      displayTime
 
                POP     {PC}
@@ -224,7 +238,7 @@ stateMachine PROC                                    ; Zustand der Taster bestim
 setInit       
                LDR     R1,=STATE                    ; Zustand auf INIT setzen
                MOV     R0,#0
-               STRB    R0,[R1]                      ; Timmer auf 0 setzen
+               STRB    R0,[R1]                      ; STATE = INIT speichern
           
                LDR     R1,=TIM2_ERG                 ; Timer neu starten / zuruecksetzen
                MOV     R0,#0x01
@@ -238,6 +252,10 @@ setInit
                STR     R0,[R1]
 
                LDR     R1,=MINUTES
+               STR     R0,[R1]
+
+               LDR     R1,=STOPWATCH_TICKS
+               MOV     R0,#0
                STR     R0,[R1]
 
                BL      displayTime
