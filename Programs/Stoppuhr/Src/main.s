@@ -258,6 +258,12 @@ setInit
                MOV     R0,#0
                STR     R0,[R1]
 
+               LDR     R1,=LAST_TIMESTAMP
+               MOV     R0,#0
+               STR     R0,[R1]
+
+               BL      displayTime  
+
                BL      displayTime
 
                POP     {R2,PC}
