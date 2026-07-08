@@ -41,14 +41,15 @@ TIM2_ERG			equ     (TIM2_BASE + 0x14)          ; 16 Bit register, Bit 0 : 1 Rest
 ;********************************************
 	AREA MyData, DATA, align = 2
 
-DEFAULT_BRIGHTNESS	   DCW     800
-MY_TEXT		   DCB     "00:00.00",0
+DEFAULT_BRIGHTNESS	    DCW     800
+MY_TEXT                 DCB     "00:00.00",0   ; aktueller Zeitstring
+DISPLAY_TEXT		    DCB     "xxxxxxxx",0   ; zuletzt angezeigter Zeitstring
 STATE                   DCB     0
 HUNDREDTHS              DCD     0
 SECONDS                 DCD     0
 MINUTES                 DCD     0
-LAST_TIMESTAMP          DCD     0    ; letzter gelesener Zeitstempel
-STOPWATCH_TICKS         DCD    0     ; gesamte gestoppte Zeit in Tics
+LAST_TIMESTAMP          DCD     0     ; letzter gelesener Zeitstempel
+STOPWATCH_TICKS         DCD     0     ; gesamte gestoppte Zeit in Tics
 
 ; Code section, aligned on 8-byte boundery
 ;********************************************
@@ -152,7 +153,7 @@ twoDigitsToAscii PROC
                 ENDP
                              	
 displayTime PROC
-               PUSH    {R4,R5,LR}
+               PUSH    {R4,R5,R6,LR}
 
                LDR     R4,=MY_TEXT                    ; Adresse von MY_TEXT merken     
 
@@ -175,15 +176,34 @@ displayTime PROC
                STRB    R3,[R4,#7]                     
  
              
-               MOV     R0, #5                         ; X Position der Zeitanzeige
-               MOV     R1, #3                         ; Y Position der Zeitanzeige
-               BL      lcdGotoXY                      ; Cursor auf feste Position setzen
+               ; MY_TEXT mit DISPLAY_TEXT vergleichen
+               LDR     R4,=MY_TEXT
+               LDR     R5,=DISPLAY_TEXT
+               MOV     R6,#0
 
-        
-               LDR     R0,=MY_TEXT                    ; Zeitstring anzeigen
-               BL      lcdPrintS
+compareText
+               LDRB    R0,[R4,R6]        ; neues Zeichen
+               LDRB    R1,[R5,R6]        ; altes Zeichen
 
-               POP     {R4,R5,PC}
+               CMP     R0,R1
+               BEQ     nextChar
+
+               STRB    R0,[R5,R6]        ; DISPLAY_TEXT aktualisieren
+
+               MOV     R0,#10
+               ADD     R0,R0,R6          ; X = 10 + Zeichenposition
+               MOV     R1,#6
+               BL      lcdGotoXY
+
+               LDRB    R0,[R4,R6]
+               BL      lcdPrintC         ; nur dieses Zeichen ausgeben
+
+nextChar
+               ADD     R6,R6,#1
+               CMP     R6,#8
+               BLT     compareText
+
+               POP     {R4,R5,R6,PC}
                ENDP
 
 updateClk PROC
@@ -212,10 +232,12 @@ updateRunning
                LDR     R0,[R1]
                ADD     R0,R0,R3
                STR     R0,[R1]
-
-               BL      convertTime                    ; R0 = gesamte gestoppte Zeit
+               
+               LDR     R0,[R1]                        ; gesamte Stoppuhrzeit laden
+               BL      convertTime                    ; STOPWATCH_TICKS in Minuten/Sekunden/Hundertstel umrechne
                BL      displayTime
 
+skipDisplay
                POP     {PC}
                ENDP
 
@@ -233,7 +255,7 @@ stateMachine PROC                                    ; Zustand der Taster bestim
                TST     R2,#0x80
                BEQ     setRunning
 
-               POP     {R2,PC}
+               b end_statemachine
 
 setInit       
                LDR     R1,=STATE                    ; Zustand auf INIT setzen
@@ -264,21 +286,21 @@ setInit
 
                BL      displayTime  
 
-               BL      displayTime
-
-               POP     {R2,PC}
+               b end_statemachine
 
 setHold
                LDR     R1,=STATE
                MOV     R0,#2
                STRB    R0,[R1]
-               POP     {R2,PC}
+               b end_statemachine
         
 
 setRunning
                LDR     R1,=STATE
                MOV     R0,#1
                STRB    R0,[R1]
+
+end_statemachine
                POP     {R2,PC}	
                ENDP	
 
@@ -300,7 +322,7 @@ showStateLEDs PROC
                CMP     R0,#2
                BEQ     showHold
 
-               BX      LR
+               B end_showStateLEDs
 
 showInit
                MOV     R0,#0x00                       ; INIT: D8 aus, D9 aus
@@ -316,6 +338,8 @@ showHold
 setStateLed
                LDR     R1,=GPIO_D_SET
                STR     R0,[R1]
+
+end_showStateLEDs               
                BX      LR
                ENDP
 
